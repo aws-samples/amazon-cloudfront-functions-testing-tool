@@ -1,0 +1,16 @@
+{
+    "version": "1.0",
+    "context": {
+        "eventType": "viewer-response"
+    },
+    "request": {
+        "method": "GET",
+        "uri": "/"
+    },
+    "response": {
+        "statusCode": 200,
+        "statusDescription": "OK",
+        "headers": {},
+        "cookies": {}
+      }
+}
