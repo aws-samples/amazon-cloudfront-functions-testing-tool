@@ -73,6 +73,7 @@ def clean_up(session, params):
 def main(argv):
     queries = """\
     SELECT count(*) cnt, request_ip, method, uri, referrer, user_agent, query_string, cookie, host_header
+    -- please change the table name to yours
     FROM combined
     -- filtering 24 hours(1d) data
     WHERE concat(year, month, day, hour) >= DATE_FORMAT
