@@ -34,7 +34,7 @@ You can choose request headers used an event object as input to the function.<br
 These headers are extracted based on Amazon CloudFront Standard logs. So please keep it mind all headers are not available.<br />
 available headers = ['request_ip', 'method', 'uri', 'referrer', 'user_agent', 'query_string', 'cookie', 'host_header']<br />
 ```python
-python3 testingCFF.py --function functionName --headers request_ip method uri referrer user_agent query_string cookie --eventType viewer-response
+python3 testingCFF.py --function functionName --headers request_ip method uri referrer user_agent query_string cookie
 ```
 For help,
 ```python
