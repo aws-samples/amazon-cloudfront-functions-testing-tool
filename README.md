@@ -30,9 +30,9 @@ If your function's eventType is for viewer-response, please add a eventType argu
 ```python
 python3 testingCFF.py --function functionName --eventType viewer-response
 ```
-You can choose request headers used an event object as input to the function.
-These headers are extracted based on Amazon CloudFront Standard logs. So please keep it mind all headers are not available.
-available headers = ['request_ip', 'method', 'uri', 'referrer', 'user_agent', 'query_string', 'cookie', 'host_header']
+You can choose request headers used an event object as input to the function.<br />
+These headers are extracted based on Amazon CloudFront Standard logs. So please keep it mind all headers are not available.<br />
+available headers = ['request_ip', 'method', 'uri', 'referrer', 'user_agent', 'query_string', 'cookie', 'host_header']<br />
 ```python
 python3 testingCFF.py --function functionName --headers request_ip method uri referrer user_agent query_string cookie --eventType viewer-response
 ```
