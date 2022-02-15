@@ -71,13 +71,14 @@ def clean_up(session, params):
         item.delete()
 
 def main(argv):
+    req_headers = ', '.join([str(param) for param in argv.headers])
     queries = """\
-    SELECT count(*) cnt, request_ip, method, uri, referrer, user_agent, query_string, cookie, host_header
+    SELECT count(*) cnt, HEADERS
     -- please change the table name to yours
     FROM combined
     -- filtering 24 hours(1d) data
     WHERE concat(year, month, day, hour) >= DATE_FORMAT
-    GROUP BY request_ip, method, uri, referrer, user_agent, query_string, cookie, host_header
+    GROUP BY HEADERS
     ORDER BY cnt desc
     -- top 10 requests
     limit 10"""
@@ -88,6 +89,7 @@ def main(argv):
     # filtering -5hours data 
     #filtered_date = (now - timedelta(hours=5)).strftime('%Y%m%d%H')
     athena_query = queries.replace("DATE_FORMAT","'" + filtered_date + "'")
+    athena_query = athena_query.replace("HEADERS", req_headers)
     #print(athena_query)
 
     # please change the values in params to your region, database, bucket, path.
@@ -112,23 +114,26 @@ def main(argv):
     #get CloudFront Function ETag - pre-requisite parameter of CFF test
     functionName = argv.function
     eventType = argv.eventType
+    headers = argv.headers
     CFF_etag = CFF_call_test.getETag(session, functionName)
 
     #print input/output sample
-    print("input(request_ip, host_header, url, referer, user-agent, cookies) --> output(status(Err or OK), ComputeUtilization%)")
+    print('input(' + ', '.join([str(req_header) for req_header in argv.headers]).replace("query_string, ", "") + ")" + " --> output(status(Err or OK), ComputeUtilization%)")
 
     #call test_function of Cloudfront Function
     for queryResult in data:
-        cpu, testResult = CFF_call_test.testFunction(session, etag=CFF_etag, athenaResult=queryResult, functionName=functionName, evenType=eventType)
+        cpu, testResult = CFF_call_test.testFunction(session, etag=CFF_etag, athenaResult=queryResult, functionName=functionName, evenType=eventType, headers=headers)
     
     # Deletes all files in your path so use carefully!
     clean_up(session, params)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="testing CloudFront Function \
-        ex. testingCFF.py --function functionName --eventType viewer-response")
+        ex. python3 testingCFF.py --function functionName --eventType viewer-response --headers request_ip referrer")
     parser.add_argument('--function', metavar='function_name', required=True, help='CloudFront Fucntion Name')
-    parser.add_argument('--eventType', metavar='eventType', required=False, default="viewer-request", help='default Value: viewer-request')
+    parser.add_argument('--eventType', metavar='eventType', required=False, default="viewer-request", help='default Value: %(default)s')
+    parser.add_argument('--headers', choices=['request_ip', 'method', 'uri', 'referrer', 'user_agent', 'query_string', 'cookie', 'host_header'], nargs='+', metavar='headers', required=False, default=['request_ip', 'uri', 'referrer'], help='default Value: %(default)s\
+        , valid headers: request_ip, method, uri, referrer, user_agent, query_string, cookie, host_header')
 
     args = parser.parse_args()
     main(args)
